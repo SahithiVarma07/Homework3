@@ -1,0 +1,125 @@
+---
+title: "Homework3"
+author: "Sahithi Uppalapati"
+date: "2025-10-01"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggthemes)
+library(broom)
+library(colorfindr)
+```
+
+
+
+
+## Reccomendation
+
+The company should proceed with redesigning the web site based on the criteria of success laid out in the analysis below (more detailed final reccomendation at the end)
+
+
+
+
+
+## Problem statement and Intro
+```{r}
+data <- read_csv("homework3_data.csv")
+head(data)
+
+```
+This data has columns titled sales, design, items, and nps. We are trying to make a recommendation to the company: Should they commit to redesigning the web site based on the criteria for success that they laid out?
+
+
+
+
+
+##Tiktok Compnay Colors
+
+```{r}
+#getting custom tiktok colors
+tiktok_color_palette <- get_colors("~/Downloads/tiktok.png")
+
+head(tiktok_color_palette)
+
+tiktok_colors <- c("#010101", "#FFFFFF", "#69C9D0", "#EE1D52")
+
+```
+I will be using Tiktok as the companys color pallete.
+
+
+
+
+
+
+##Graphical Visuals
+
+```{r}
+ggplot(data, aes(x = factor(design), y = sales, fill = factor(design))) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("0" = tiktok_colors[1], "1" = tiktok_colors[3])) +
+  labs(x = "Website Design (0/black = Old, 1/cyan = New)", 
+       y = "Sales", 
+       color = "Website Design (0 = Old, 1 = New)",
+       title = "Sales Distribution by Web Design Type") +
+  theme_minimal()
+
+```
+This box plot displays the distribution of sales with the old and new web designs. The boxolot shows that the median sales actually increased with the new design (1/cyan), and the middle 50% of sales shifted upwards in comparison to the old website.The central tendency clearly favors the new design showing that customers spend more with the new website. This supports the analysis that the redesign of the website increases sales. 
+
+
+```{r}
+ggplot(data, aes(x = nps, y = sales, color = factor(design))) +
+  geom_point(alpha = 0.6, size = 3) +
+  geom_smooth(method = "lm", se = FALSE) + # add regression lines to the graph
+  scale_color_manual(values = c("0" = tiktok_colors[1], "1" = tiktok_colors[3])) +
+  labs(x = "NPS", 
+       y = "Sales", 
+       color = "Website Design (0 = Old, 1 = New)", 
+       title = "NPS vs. Sales by Web Design Type") +
+  theme_minimal()
+
+```
+
+Through this scatter graph, we can see that sales increase with NPS. This goes to show that happier customers will spend more money. Since nps is indicating how likely the customer is to recommend the web site, we can see that as the nps score gets higher, the sales tend to increase for redesign of website 1 rather than the old website. The regression line for the new design is consistenly above the old website design (black). This also goes to support the analysis that the new design raises average sales.
+
+
+
+
+## Sales Estimate
+
+```{r}
+#run a regression
+model <- lm(sales ~ design, data = data)
+summary(model)
+
+```
+Here we can see that the intercept is 31.85 which is what th eold design average sales would estimate. This means customers spent on average 31.85 with the old website. We can see the slope coefficient in this case (design) is 3.66. This would mean that we increase $3.66 more with the new website. The p-value sues to be < 0.001 too which means the difference is in fact statistically significant. 
+
+
+```{r}
+# see how confident we are that sales will increase 
+confint(model)
+
+```
+Just to be sure, i ran a confidence interval test. We can see that we are 95% confident that the redesign increases sales between $2.78 and $4.55 per customer. The company will commit to redesign if the sales increase on average above $1.80. According to our results above, the estimate for the new redesign is $3.66, which is above the threshold.
+
+
+
+
+
+## Final Reccomendation
+
+The graphical visuals show that sales increase with the new design. The regression model suggests that the redesign increases sales by $3.66 per customer. Since this increase is above the company's threshold of $1.80 and the effect is statistically significant, I would suggest that the company does the website redesign.
+
+## Alternative Statement
+Even though the regression and graphical analysis show that the redesign increases sales, the improvement could be due to other factors like increased sales due to seasonality or customer demographics. Due to these confounding variables, the old design could still incraese sales and woul dbe a good choise to avoid extra efforts. 
+
+
+
+
+
